@@ -6,21 +6,41 @@ function Game(canvasID, w, h, socket) {
 	this.$canvas = $(canvasID);
 	this.$canvas.css('width', w);
 	this.$canvas.css('height', h);
+	this.c = this.$canvas.get(0).getContext('2d'); //get(0) because it's a jquery element
 	this.socket = socket;
 	
 	var t = this;
-	(function animLoop() {
+	/*(function animLoop() {
 		requestAnimationFrame(animLoop);
 		t.gameLoop();
-	})();
+	})();*/
+	setInterval(function() {
+		t.gameLoop();
+	}, 20);
 }
 
 Game.prototype = {
 	gameLoop: function() {
 		this.sendPlayerData();
+		this.clear();
+		this.update();
 	},
 	
-	addPlayer: function(p) {
+	clear: function() {
+		this.c.clearRect(0, 0, this.width, this.height);
+	},
+	
+	update: function() {
+		this.players.forEach(function(p) {
+			p.draw();
+		});
+		if (this.currentPlayer != undefined) {
+			this.currentPlayer.draw();
+		}
+	},
+	
+	addPlayer: function(x, y, id, isCurrent) {
+		var p = new Player(this.c, x, y, id, isCurrent);
 		if (p.isCurrent) {
 			this.currentPlayer = p;
 			console.log('currentplayer', this.currentPlayer);
@@ -37,7 +57,8 @@ Game.prototype = {
 	}
 }
 
-function Player(x, y, id, isCurrent) {
+function Player(c, x, y, id, isCurrent) {
+	this.c = c;
 	this.x = x;
 	this.y = y;
 	this.id = id;
@@ -51,6 +72,12 @@ Player.prototype = {
 	
 	init: function() {
 		this.setControls();
+		this.draw();
+	},
+	
+	draw: function() {
+		this.c.fillStyle = "red";
+		this.c.fillRect(this.x, this.y, 10, 10);
 	},
 	
 	getData: function() {
@@ -61,7 +88,7 @@ Player.prototype = {
 	moveTo: function(x, y) {
 		this.x = x;
 		this.y = y;
-		//console.log('move to %d, %d', x, y);
+		console.log('move to %d, %d', x, y);
 	},
 	
 	setControls: function() {

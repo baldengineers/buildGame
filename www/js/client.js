@@ -2,11 +2,10 @@ var WIDTH = 500;
 var HEIGHT = 500;
 
 var socket = io(); //.connect('http://localhost');
-var game = new Game('#canvas', WIDTH, HEIGHT, socket);
+var game = new Game('#canvasMain', WIDTH, HEIGHT, socket);
 
 socket.on('addPlayer', function(player) {
-	var p = new Player(player.x, player.y, player.id, false);
-	game.addPlayer(p);
+	game.addPlayer(player.x, player.y, player.id, false);
 });
 
 socket.on('movePlayer', function(pos) {
@@ -36,9 +35,8 @@ function joinGame() {
 	var y = randInt(100, HEIGHT-100);
 	
 	var id = guid();
-	var player = new Player(x, y, id, true);
-	game.addPlayer(player);
-	socket.emit('joinGame', player);
+	game.addPlayer(x, y, id, true);
+	socket.emit('joinGame', {x: x, y: y, id: id});
 }
 
 function randInt(min, max) {
