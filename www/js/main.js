@@ -41,16 +41,16 @@ GameArea.prototype = {
 	},
 	
 	addPlayer: function(x, y, id, isCurrent) {
-		console.log('players before: ', this.players);
+		//console.log('players before: ', this.players);
 		var p = new Player(this.context, x, y, id, isCurrent);
 		if (p.isCurrent) {
 			this.currentPlayer = p;
-			console.log('currentplayer', this.currentPlayer);
+			//console.log('currentplayer', this.currentPlayer);
 		} else {
 			this.players.push(p);
-			console.log('add player with id of: ' + id);
+			//console.log('add player with id of: ' + id);
 		}
-		console.log('players after: ', this.players);
+		//console.log('players after: ', this.players);
 	},
 	
 	rmPlayer: function(id) {
@@ -79,7 +79,7 @@ GameArea.prototype = {
 		
 		data.forEach(function(item) {
 			//console.log('item id ', item.id);
-			console.log(this.players);
+			//console.log(this.players);
 			if (this.players != undefined) {
 				this.players.forEach(function(player) {
 					//console.log('player id ', player.id);

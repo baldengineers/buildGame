@@ -52,7 +52,6 @@ function joinGame() {
 	
 	var id = guid();
 	gameArea.addPlayer(x, y, id, true);
-	console.log('my id: ', id);
 	socket.emit('joinGame', {x: x, y: y, id: id});
 }
 
