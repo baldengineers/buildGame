@@ -77,5 +77,7 @@ io.on('connection', function(socket) {
 		var i = players.indexOf(currentPlayer);
 		players.splice(i, 1);
 		console.log(currentPlayer.id + ' left.');
+		
+		socket.broadcast.emit('leaveGame', currentPlayer.id);
 	});
 });

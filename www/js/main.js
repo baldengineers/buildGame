@@ -1,94 +1,94 @@
-function Game(canvasID, w, h, socket) {
+function GameArea(width, height, socket) {
+	this.width = width;
+	this.height = height;
+	this.canvas = document.createElement('canvas');
 	this.players = [];
 	this.currentPlayer;
-	this.width = w;
-	this.height = h;
-	this.$canvas = $(canvasID);
-	this.$canvas.css('width', w);
-	this.$canvas.css('height', h);
-	this.c = this.$canvas.get(0).getContext('2d'); //get(0) because it's a jquery element
 	this.socket = socket;
-	
-	var t = this;
-	/*(function animLoop() {
-		requestAnimationFrame(animLoop);
-		t.gameLoop();
-	})();*/
-	setInterval(function() {
-		t.gameLoop();
-	}, 20);
 }
 
-Game.prototype = {
-	gameLoop: function() {
-		this.sendPlayerData();
-		this.clear();
-		this.update();
+GameArea.prototype = { 
+	start: function() {
+		this.canvas.width = this.width;
+		this.canvas.height = this.height;
+		this.context = this.canvas.getContext('2d');
+		document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+		this.setControls();
+		
+		var t = this;
+		setInterval(function() {
+			t.updateGameArea();
+		}, 20);
 	},
 	
 	clear: function() {
-		this.c.clearRect(0, 0, this.width, this.height);
+		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	},
 	
-	update: function() {
+	updateGameArea: function() {
+		//console.log('players UPDATEGA', this.players);
+		
+		this.sendCurPlayerData();
+		this.sync();
+		this.clear();
+		
 		this.players.forEach(function(p) {
-			p.draw();
+			p.update();
 		});
 		if (this.currentPlayer != undefined) {
-			this.currentPlayer.draw();
+			this.currentPlayer.update();
 		}
 	},
 	
 	addPlayer: function(x, y, id, isCurrent) {
-		var p = new Player(this.c, x, y, id, isCurrent);
+		console.log('players before: ', this.players);
+		var p = new Player(this.context, x, y, id, isCurrent);
 		if (p.isCurrent) {
 			this.currentPlayer = p;
 			console.log('currentplayer', this.currentPlayer);
 		} else {
 			this.players.push(p);
+			console.log('add player with id of: ' + id);
+		}
+		console.log('players after: ', this.players);
+	},
+	
+	rmPlayer: function(id) {
+		for (var i = this.players.length-1; i >= 0; i--) {
+			if (this.players[i].id == id) {
+				this.players.splice(i, 1);
+			}
 		}
 	},
 	
-	sendPlayerData: function() {
+	sync: function() {
+		this.socket.emit('sync');
+	},
+	
+	sendCurPlayerData: function() {
 		if (this.currentPlayer != undefined) {
 			var data = this.currentPlayer.getData();
-			this.socket.emit('playerData', data);
+			//console.log(data);
+			this.socket.emit('movePlayer', data);
 		}
-	}
-}
-
-function Player(c, x, y, id, isCurrent) {
-	this.c = c;
-	this.x = x;
-	this.y = y;
-	this.id = id;
-	this.isCurrent = isCurrent; //is it the current player
-	this.dir = {up: false, right: false, down: false, left: false};
-	this.speed = 5;
-	this.init();
-}
-
-Player.prototype = {
-	
-	init: function() {
-		this.setControls();
-		this.draw();
 	},
 	
-	draw: function() {
-		this.c.fillStyle = "red";
-		this.c.fillRect(this.x, this.y, 10, 10);
-	},
-	
-	getData: function() {
-		//console.log('dir', this.dir);
-		return {x: this.x, y: this.y, dir: this.dir, speed: this.speed};
-	},
-	
-	moveTo: function(x, y) {
-		this.x = x;
-		this.y = y;
-		console.log('move to %d, %d', x, y);
+	receivePlayerData: function(data) {
+		//receive positions of all the players. Data is [{id: id, x: x, y: y}]
+		//console.log(this.players);
+		
+		data.forEach(function(item) {
+			//console.log('item id ', item.id);
+			console.log(this.players);
+			if (this.players != undefined) {
+				this.players.forEach(function(player) {
+					//console.log('player id ', player.id);
+					if (item.id == player.id) {
+						player.moveTo(item.x, item.y);
+					}
+				});
+			}
+		}, this); //without this "this" all the this. variables are undefined!
 	},
 	
 	setControls: function() {
@@ -98,19 +98,19 @@ Player.prototype = {
 			switch(k) {
 				case 87:
 					//w
-					t.dir.up = true;
+					t.currentPlayer.dir.up = true;
 					break;
 				case 68:
 					//d
-					t.dir.right = true;
+					t.currentPlayer.dir.right = true;
 					break;
 				case 83:
 					//s
-					t.dir.down = true;
+					t.currentPlayer.dir.down = true;
 					break;
 				case 65:
 					//a
-					t.dir.left = true;
+					t.currentPlayer.dir.left = true;
 					break;
 			}
 		}).keyup(function(e) {
@@ -118,22 +118,59 @@ Player.prototype = {
 			switch(k) {
 				case 87:
 					//w
-					t.dir.up = false;
+					t.currentPlayer.dir.up = false;
 					break;
 				case 68:
 					//d
-					t.dir.right = false;
+					t.currentPlayer.dir.right = false;
 					break;
 				case 83:
 					//s
-					t.dir.down = false;
+					t.currentPlayer.dir.down = false;
 					break;
 				case 65:
 					//a
-					t.dir.left = false;
+					t.currentPlayer.dir.left = false;
 					break;
 			}
 		});
+		
+		$(window).blur(function() {
+			t.currentPlayer.dir = {up: false, right: false, down: false, left: false};
+		});
 	}
+}
+
+function Player(context, x, y, id, isCurrent) {
+	this.x = x;
+	this.y = y;
+	this.color = 'red';
+	this.ctx = context;
+	this.id = id;
+	this.isCurrent = isCurrent; //is it the current player
+	this.dir = {up: false, right: false, down: false, left: false};
+	this.speed = 5;
+	this.init();
+}
+
+Player.prototype = {
+	init: function() {
+		this.update();
+	},
 	
+	update: function() {
+		this.ctx.fillStyle = this.color;
+		this.ctx.fillRect(this.x, this.y, 30, 30);
+	},
+	
+	getData: function() {
+		//console.log('dir', this.dir);
+		return {x: this.x, y: this.y, dir: this.dir, speed: this.speed, id: this.id};
+	},
+	
+	moveTo: function(x, y) {
+		this.x = x;
+		this.y = y;
+		//console.log('move to %d, %d', x, y);
+	},
 }

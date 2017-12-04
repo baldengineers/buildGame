@@ -1,24 +1,40 @@
-var WIDTH = 500;
-var HEIGHT = 500;
+var WIDTH = 480;
+var HEIGHT = 270;
 
-var socket = io(); //.connect('http://localhost');
-var game = new Game('#canvasMain', WIDTH, HEIGHT, socket);
+var player;
+var socket = io();
+var gameArea = new GameArea(WIDTH, HEIGHT, socket);
 
-socket.on('addPlayer', function(player) {
-	game.addPlayer(player.x, player.y, player.id, false);
+socket.on('addPlayers', function(players) {
+	players.forEach(function(player) {
+		gameArea.addPlayer(player.x, player.y, player.id, false);
+	});
 });
 
-socket.on('movePlayer', function(pos) {
-	game.currentPlayer.moveTo(pos.x, pos.y);
+socket.on('playerData', function(data) {
+	//contains data for all the players
+	gameArea.receivePlayerData(data);
+});
+
+socket.on('movePlayer', function(data) {
+	//move current player
+	gameArea.currentPlayer.moveTo(data.x, data.y);
+});
+
+socket.on('leaveGame', function(id) {
+	//when an existing player leaves the gameArea
+	gameArea.rmPlayer(id);
 });
 
 $(document).ready(function() {
-	joinGame();
+	startGame();
 });
 
-$(window).on('beforeunload', function() {
-	socket.emit('leaveGame');
-});
+function startGame() {
+	gameArea.start();
+	joinGame();
+	//player = new Player(30, 30, '#90C3D4', 10, 120);
+}
 
 function joinGame() {
 	function guid() {
@@ -35,7 +51,8 @@ function joinGame() {
 	var y = randInt(100, HEIGHT-100);
 	
 	var id = guid();
-	game.addPlayer(x, y, id, true);
+	gameArea.addPlayer(x, y, id, true);
+	console.log('my id: ', id);
 	socket.emit('joinGame', {x: x, y: y, id: id});
 }
 
