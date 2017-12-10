@@ -30,7 +30,8 @@ io.on('connection', function(socket) {
 			}
 		});
 		
-		socket.emit('movePlayer', {x: data.x, y: data.y});
+		//DON"T USE THIS because player is moved locally
+		//socket.emit('movePlayer', {x: data.x, y: data.y});
 		//socket.broadcast.emit('playerData', {id: data.id, x: data.x, y: data.y});
 	});
 	
