@@ -26,17 +26,43 @@ GameArea.prototype = {
 	},
 	
 	updateGameArea: function() {
-		//console.log('players UPDATEGA', this.players);
-		
+		this.movePlayer();
 		this.sendCurPlayerData();
+		
 		this.sync();
+		
+		//clear the screen
 		this.clear();
 		
+		//update players
 		this.players.forEach(function(p) {
 			p.update();
 		});
 		if (this.currentPlayer != undefined) {
 			this.currentPlayer.update();
+		}
+	},
+	
+	movePlayer: function() {
+		//calculate player movement
+		if (this.currentPlayer != undefined) {
+			var p = this.currentPlayer;
+		
+			if (!(p.dir.up && p.dir.down)) {
+				if (p.dir.up) {
+					p.y -= p.speed;
+				} else if (p.dir.down) {
+					p.y += p.speed;
+				}
+			}
+			if (!(p.dir.left && p.dir.right)) {
+				if (p.dir.left) {
+					p.x -= p.speed;
+				} else if (p.dir.right) {
+					p.x += p.speed;
+				}
+			}
+		
 		}
 	},
 	

@@ -19,21 +19,6 @@ io.on('connection', function(socket) {
 	
 	socket.on('movePlayer', function(data) {
 		//console.log('playerData', data.x);
-		//calculate player movement
-		if (!(data.dir.up && data.dir.down)) {
-			if (data.dir.up) {
-				data.y -= data.speed;
-			} else if (data.dir.down) {
-				data.y += data.speed;
-			}
-		}
-		if (!(data.dir.left && data.dir.right)) {
-			if (data.dir.left) {
-				data.x -= data.speed;
-			} else if (data.dir.right) {
-				data.x += data.speed;
-			}
-		}
 		
 		//console.log(data.x);
 		//OBSELETE -  -- - - - - -- - - --MAJOR FLAW WITH THIS, it sets it back to original after moving, unless the physical player is moving
