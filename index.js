@@ -26,6 +26,8 @@ io.on('connection', function(socket) {
 			if (player.id == data.id) {
 				players[index].x = data.x;
 				players[index].y = data.y;
+				players[index].speed = data.speed;
+				players[index].dir = data.dir;
 				//console.log('setting index ' + index + ' x pos to ' + data.x);
 			}
 		});
