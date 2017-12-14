@@ -1,7 +1,8 @@
-function GameArea(width, height, socket) {
+function GameArea(width, height, $div, socket) {
 	this.width = width;
 	this.height = height;
 	this.canvas = document.createElement('canvas');
+	this.$div = $div;
 	this.players = [];
 	this.currentPlayer;
 	this.socket = socket;
@@ -12,7 +13,8 @@ GameArea.prototype = {
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;
 		this.context = this.canvas.getContext('2d');
-		document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+		this.$div.append(this.canvas);
+		//document.body.insertBefore(this.canvas, document.body.childNodes[0]);
 		this.setControls();
 		
 		var t = this;

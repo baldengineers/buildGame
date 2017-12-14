@@ -3,8 +3,11 @@ var HEIGHT = 270;
 
 var player;
 var socket = io();
-var gameArea = new GameArea(WIDTH, HEIGHT, socket);
+var $content = $('.content');
+var $wrapper = $('.wrapper');
+var gameArea = new GameArea(WIDTH, HEIGHT, $content, socket);
 
+//socket stuff
 socket.on('addPlayers', function(players) {
 	players.forEach(function(player) {
 		gameArea.addPlayer(player.x, player.y, player.id, false);
@@ -26,6 +29,7 @@ socket.on('leaveGame', function(id) {
 	gameArea.rmPlayer(id);
 });
 
+//joining game
 $(document).ready(function() {
 	startGame();
 });
@@ -58,3 +62,22 @@ function joinGame() {
 function randInt(min, max) {
 	return Math.floor(Math.random() * (max-min+1) + min);
 }
+
+//resizing window
+var contentH = gameArea.$content.outerHeight();
+var contentW = gameArea.$content.outerWidth();
+
+/*
+$wrapper.resizeable({
+	resize: doResize
+});
+
+function doResize(event, ui) {
+	
+	var scale = Math.min(ui.size.width / contentW, ui.size.height / contentH);
+	
+	$content.css({
+		transform: 'translate(-50%, -50%) ' + 'scale(' + scale + ')'
+	});
+}
+*/
