@@ -56,7 +56,7 @@ function joinGame() {
 	
 	var id = guid();
 	gameArea.addPlayer(x, y, id, true);
-	socket.emit('joinGame', {x: x, y: y, id: id});
+	socket.emit('joinGame', {x: x, y: y, id: id, dir: {up: false, down: false, left: false, right: false}, speed: 5});
 }
 
 function randInt(min, max) {
@@ -64,11 +64,11 @@ function randInt(min, max) {
 }
 
 //resizing window
-var contentH = gameArea.$content.outerHeight();
-var contentW = gameArea.$content.outerWidth();
+var contentH = $content.height;
+var contentW = $content.width;
 
-/*
-$wrapper.resizeable({
+
+$wrapper.resizable({
 	resize: doResize
 });
 
@@ -80,4 +80,3 @@ function doResize(event, ui) {
 		transform: 'translate(-50%, -50%) ' + 'scale(' + scale + ')'
 	});
 }
-*/

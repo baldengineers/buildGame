@@ -66,6 +66,25 @@ GameArea.prototype = {
 			}
 		
 		}
+		
+		this.players.forEach(function(player) {
+			var p = player;
+		
+			if (!(p.dir.up && p.dir.down)) {
+				if (p.dir.up) {
+					p.y -= p.speed;
+				} else if (p.dir.down) {
+					p.y += p.speed;
+				}
+			}
+			if (!(p.dir.left && p.dir.right)) {
+				if (p.dir.left) {
+					p.x -= p.speed;
+				} else if (p.dir.right) {
+					p.x += p.speed;
+				}
+			}
+		});
 	},
 	
 	addPlayer: function(x, y, id, isCurrent) {
@@ -112,6 +131,9 @@ GameArea.prototype = {
 				this.players.forEach(function(player) {
 					//console.log('player id ', player.id);
 					if (item.id == player.id) {
+						//console.log('setting player dir to ', item.dir);
+						player.dir = item.dir;
+						player.speed = item.speed;
 						player.moveTo(item.x, item.y);
 					}
 				});
