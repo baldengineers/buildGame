@@ -200,17 +200,27 @@ function Player(context, x, y, id, isCurrent) {
 	this.isCurrent = isCurrent; //is it the current player
 	this.dir = {up: false, right: false, down: false, left: false};
 	this.speed = 5;
+	this.img = new Image();
+	this.img.src = '../img/player_left.png';
 	this.init();
 }
 
 Player.prototype = {
 	init: function() {
 		this.update();
+		
+		var t = this;
+		this.img.onload = function() {
+			t.ctx.drawImage(t.img, t.x, t.y);
+		}
 	},
 	
 	update: function() {
-		this.ctx.fillStyle = this.color;
-		this.ctx.fillRect(this.x, this.y, 30, 30);
+		//this.ctx.fillStyle = this.color;
+		//this.ctx.fillRect(this.x, this.y, 30, 30);
+		if (this.img.complete) {
+			this.ctx.drawImage(this.img, this.x, this.y);
+		}
 	},
 	
 	getData: function() {
